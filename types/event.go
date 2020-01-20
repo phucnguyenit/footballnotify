@@ -58,7 +58,7 @@ func (e Event) GoalScorerChanges(ne Event) []GoalScorer {
 // HomeSubChanges ...
 func (e Event) HomeSubChanges(ne Event) []LineUp {
 	if len(e.Substitutions.Home) < len(ne.Substitutions.Home) {
-		return ne.Substitutions.Home[len(e.Substitutions.Home)+1:]
+		return ne.Substitutions.Home[len(e.Substitutions.Home):]
 	}
 	return nil
 }
@@ -66,7 +66,7 @@ func (e Event) HomeSubChanges(ne Event) []LineUp {
 // AwayTeamSubChanges ...
 func (e Event) AwayTeamSubChanges(ne Event) []LineUp {
 	if len(e.Substitutions.Away) < len(ne.Substitutions.Away) {
-		return ne.Substitutions.Away[len(e.Substitutions.Away)+1:]
+		return ne.Substitutions.Away[len(e.Substitutions.Away):]
 	}
 	return nil
 }
