@@ -22,8 +22,10 @@ func main() {
 			log.Printf("err: %s", err)
 			continue
 		}
-		msgs := events.GetNotificationMessages(newEvents)
-		fire.SendMsgs(msgs)
+		if len(events) > 0 {
+			msgs := events.GetNotificationMessages(newEvents)
+			fire.SendMsgs(msgs)
+		}
 		events = newEvents
 
 		// push message
