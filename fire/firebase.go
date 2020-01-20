@@ -29,7 +29,7 @@ func New() *Fire {
 // SendMsgs ...
 func (fire Fire) SendMsgs(msgs []types.Message) {
 	for _, msg := range msgs {
-		log.Printf("topic %s title: %s", msg.Topic, msg.Title)
+		log.Printf("topic %v title: %s", msg.Topics, msg.Title)
 		if err := fire.SendMsg(msg); err != nil {
 			log.Printf("send msg err: %s", err)
 			continue
@@ -48,25 +48,28 @@ func (fire Fire) SendMsg(msg types.Message) error {
 		return err
 	}
 
-	// [START send_to_topic_golang]
-	// The topic name can be optionally prefixed with "/topics/".
-	topic := msg.Topic
+	for _, topic := range msg.Topics {
+		// [START send_to_topic_golang]
+		// The topic name can be optionally prefixed with "/topics/".
+		topic := topic
 
-	// See documentation on defining a message payload.
-	message := &messaging.Message{
-		Notification: &messaging.Notification{
-			Title: msg.Title,
-		},
-		Topic: topic,
+		// See documentation on defining a message payload.
+		message := &messaging.Message{
+			Notification: &messaging.Notification{
+				Title: msg.Title,
+			},
+			Topic: topic,
+		}
+
+		// Send a message to the devices subscribed to the provided topic.
+		response, err := client.Send(ctx, message)
+		if err != nil {
+			return err
+		}
+		// Response is a message ID string.
+		fmt.Println("Successfully sent message:", response)
 	}
 
-	// Send a message to the devices subscribed to the provided topic.
-	response, err := client.Send(ctx, message)
-	if err != nil {
-		return err
-	}
-	// Response is a message ID string.
-	fmt.Println("Successfully sent message:", response)
 	// [END send_to_topic_golang]
 	return nil
 }

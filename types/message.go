@@ -2,6 +2,6 @@ package types
 
 // Message ...
 type Message struct {
-	Topic string `json:"room"`
-	Title string `json:"title"`
+	Topics []string `json:"topics"`
+	Title  string   `json:"title"`
 }

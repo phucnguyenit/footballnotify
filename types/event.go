@@ -12,6 +12,8 @@ type Event struct {
 	MatchStatus                string       `json:"match_status"`
 	MatchDate                  string       `json:"match_date"`
 	MatchTime                  string       `json:"match_time"`
+	MatchHomeTeamID            string       `json:"match_hometeam_id"`
+	MatchAwayTeamID            string       `json:"match_awayteam_id"`
 	MatchHomeTeamName          string       `json:"match_hometeam_name"`
 	MatchHomeTeamScore         string       `json:"match_hometeam_score"`
 	MatchAwayTeamName          string       `json:"match_awayteam_name"`
@@ -73,17 +75,17 @@ func (e Event) AwayTeamSubChanges(ne Event) []LineUp {
 
 // IsEnd ...
 func (e Event) IsEnd(ne Event) bool {
-	return e.MatchStatus != "FT" && ne.MatchStatus == "FT"
+	return e.MatchStatus != "Finished" && ne.MatchStatus == "Finished"
 }
 
 // GetNotificationMessages ...
 func (e Event) GetNotificationMessages(ne Event) []Message {
-	topic := "team:" + e.MatchID
+	topics := []string{"team." + e.MatchHomeTeamID, "team." + e.MatchAwayTeamID}
 	msgs := []Message{}
 
 	if e.IsLive(ne) == true {
 		msgs = append(msgs, Message{
-			Topic: topic,
+			Topics: topics,
 			Title: fmt.Sprintf("Trận đấu giữa %s và %s đã bắt đầu",
 				e.MatchHomeTeamName, e.MatchAwayTeamName),
 		})
@@ -91,7 +93,7 @@ func (e Event) GetNotificationMessages(ne Event) []Message {
 
 	if e.IsEnd(ne) == true {
 		msgs = append(msgs, Message{
-			Topic: topic,
+			Topics: topics,
 			Title: fmt.Sprintf("Trận đấu giữa %s và %s đã kết thúc với tỷ số (%s-%s)",
 				ne.MatchHomeTeamName, ne.MatchAwayTeamName, ne.MatchHomeTeamScore, ne.MatchAwayTeamScore),
 		})
@@ -101,7 +103,7 @@ func (e Event) GetNotificationMessages(ne Event) []Message {
 	if len(goalscorerChanges) > 0 {
 		for _, goalscorerChange := range goalscorerChanges {
 			msgs = append(msgs, Message{
-				Topic: topic,
+				Topics: topics,
 				Title: fmt.Sprintf("Trận đấu (%s-%s) %s đã ghi bàn tỷ số (%s-%s) ",
 					ne.MatchHomeTeamName,
 					ne.MatchAwayTeamName,
@@ -116,7 +118,7 @@ func (e Event) GetNotificationMessages(ne Event) []Message {
 	if len(homeSubChanges) > 0 {
 		for _, subChange := range homeSubChanges {
 			msgs = append(msgs, Message{
-				Topic: topic,
+				Topics: topics,
 				Title: fmt.Sprintf("Trận đấu (%s-%s) Thay người %s bên đội %s",
 					ne.MatchHomeTeamName,
 					ne.MatchAwayTeamName,
@@ -130,7 +132,7 @@ func (e Event) GetNotificationMessages(ne Event) []Message {
 	if len(awaySubChanges) > 0 {
 		for _, subChange := range awaySubChanges {
 			msgs = append(msgs, Message{
-				Topic: topic,
+				Topics: topics,
 				Title: fmt.Sprintf("Trận đấu (%s-%s) Thay người %s bên đội %s",
 					ne.MatchHomeTeamName,
 					ne.MatchAwayTeamName,
