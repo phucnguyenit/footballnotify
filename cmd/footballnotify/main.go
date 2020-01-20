@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/thang14/footballnotify/fire"
@@ -32,8 +33,9 @@ func main() {
 }
 
 func getEvents() (types.Events, error) {
-	t := time.Now().Format("2006-01-02")
-	endpoint := fmt.Sprintf("http://apiv2.apifootball.com/?action=get_events&APIkey=40f0117efa910900097069e35d39a7453fbbdb35af88a9072702e0690a15733d&from=%s&to=%s", t, t)
+	startTime := time.Now().Format("2006-01-02")
+	apiKey := os.Getenv("API_KEY")
+	endpoint := fmt.Sprintf("http://apiv2.apifootball.com/?action=get_events&APIkey=%s&from=%s&to=%s", apiKey, startTime, startTime)
 	log.Printf("get events: %s", endpoint)
 	resp, err := http.Get(endpoint)
 	if err != nil {

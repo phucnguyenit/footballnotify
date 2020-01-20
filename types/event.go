@@ -24,18 +24,20 @@ type Event struct {
 	MatchAwayTeamSystem        string       `json:"match_awayteam_system"`
 	MatchLive                  string       `json:"match_live"`
 	GoalScorer                 []GoalScorer `json:"goalscorer"`
-	LineUp                     struct {
+	Substitutions              struct {
+		Home []LineUp `json:"home"`
+		Away []LineUp `json:"away"`
+	} `json:"substitutions"`
+	LineUp struct {
 		Home struct {
 			StartingLineUps []LineUp `json:"starting_lineups"`
 			Substitutes     []LineUp `json:"substitutes"`
 			Coach           []LineUp `json:"coach"`
-			Substitutions   []LineUp `json:"substitutions"`
 		} `json:"home"`
 		Away struct {
 			StartingLineUps []LineUp `json:"starting_lineups"`
 			Substitutes     []LineUp `json:"substitutes"`
 			Coach           []LineUp `json:"coach"`
-			Substitutions   []LineUp `json:"substitutions"`
 		} `json:"away"`
 	} `json:"lineup"`
 }
@@ -55,16 +57,16 @@ func (e Event) GoalScorerChanges(ne Event) []GoalScorer {
 
 // HomeSubChanges ...
 func (e Event) HomeSubChanges(ne Event) []LineUp {
-	if len(e.LineUp.Home.Substitutions) < len(ne.LineUp.Home.Substitutions) {
-		return ne.LineUp.Home.Substitutions[len(e.LineUp.Home.Substitutions)+1:]
+	if len(e.Substitutions.Home) < len(ne.Substitutions.Home) {
+		return ne.Substitutions.Home[len(e.Substitutions.Home)+1:]
 	}
 	return nil
 }
 
 // AwayTeamSubChanges ...
 func (e Event) AwayTeamSubChanges(ne Event) []LineUp {
-	if len(e.LineUp.Away.Substitutions) < len(ne.LineUp.Away.Substitutions) {
-		return ne.LineUp.Away.Substitutions[len(e.LineUp.Away.Substitutions)+1:]
+	if len(e.Substitutions.Away) < len(ne.Substitutions.Away) {
+		return ne.Substitutions.Away[len(e.Substitutions.Away)+1:]
 	}
 	return nil
 }
@@ -90,7 +92,7 @@ func (e Event) GetNotificationMessages(ne Event) []Message {
 	if e.IsEnd(ne) == true {
 		msgs = append(msgs, Message{
 			Topic: topic,
-			Title: fmt.Sprintf("Trận đấu giữa %s và %s đã kết thúc (%s-%s)",
+			Title: fmt.Sprintf("Trận đấu giữa %s và %s đã kết thúc với tỷ số (%s-%s)",
 				ne.MatchHomeTeamName, ne.MatchAwayTeamName, ne.MatchHomeTeamScore, ne.MatchAwayTeamScore),
 		})
 	}
@@ -100,7 +102,7 @@ func (e Event) GetNotificationMessages(ne Event) []Message {
 		for _, goalscorerChange := range goalscorerChanges {
 			msgs = append(msgs, Message{
 				Topic: topic,
-				Title: fmt.Sprintf("(%s-%s) %s đã ghi bàn tỷ số (%s-%s) ",
+				Title: fmt.Sprintf("Trận đấu (%s-%s) %s đã ghi bàn tỷ số (%s-%s) ",
 					ne.MatchHomeTeamName,
 					ne.MatchAwayTeamName,
 					goalscorerChange.GetScorerName(),
@@ -115,10 +117,11 @@ func (e Event) GetNotificationMessages(ne Event) []Message {
 		for _, subChange := range homeSubChanges {
 			msgs = append(msgs, Message{
 				Topic: topic,
-				Title: fmt.Sprintf("(%s-%s) Thay người %s ",
+				Title: fmt.Sprintf("Trận đấu (%s-%s) Thay người %s bên đội %s",
 					ne.MatchHomeTeamName,
 					ne.MatchAwayTeamName,
-					subChange.LineUpPlayer),
+					subChange.LineUpPlayer,
+					ne.MatchHomeTeamName),
 			})
 		}
 	}
@@ -128,10 +131,11 @@ func (e Event) GetNotificationMessages(ne Event) []Message {
 		for _, subChange := range awaySubChanges {
 			msgs = append(msgs, Message{
 				Topic: topic,
-				Title: fmt.Sprintf("(%s-%s) Thay người %s ",
+				Title: fmt.Sprintf("Trận đấu (%s-%s) Thay người %s bên đội %s",
 					ne.MatchHomeTeamName,
 					ne.MatchAwayTeamName,
-					subChange.LineUpPlayer),
+					subChange.LineUpPlayer,
+					ne.MatchAwayTeamName),
 			})
 		}
 	}
