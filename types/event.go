@@ -2,6 +2,8 @@ package types
 
 import "fmt"
 
+import "strings"
+
 // Event ...
 type Event struct {
 	MatchID                    string       `json:"match_id"`
@@ -27,8 +29,8 @@ type Event struct {
 	MatchLive                  string       `json:"match_live"`
 	GoalScorer                 []GoalScorer `json:"goalscorer"`
 	Substitutions              struct {
-		Home []LineUp `json:"home"`
-		Away []LineUp `json:"away"`
+		Home []Substitution `json:"home"`
+		Away []Substitution `json:"away"`
 	} `json:"substitutions"`
 	LineUp struct {
 		Home struct {
@@ -42,6 +44,12 @@ type Event struct {
 			Coach           []LineUp `json:"coach"`
 		} `json:"away"`
 	} `json:"lineup"`
+}
+
+// Substitution ...
+type Substitution struct {
+	Time         string `json:"time"`
+	Substitution string `json:"substitution"`
 }
 
 // IsLive ...
@@ -58,7 +66,7 @@ func (e Event) GoalScorerChanges(ne Event) []GoalScorer {
 }
 
 // HomeSubChanges ...
-func (e Event) HomeSubChanges(ne Event) []LineUp {
+func (e Event) HomeSubChanges(ne Event) []Substitution {
 	if len(e.Substitutions.Home) < len(ne.Substitutions.Home) {
 		return ne.Substitutions.Home[len(e.Substitutions.Home):]
 	}
@@ -66,7 +74,7 @@ func (e Event) HomeSubChanges(ne Event) []LineUp {
 }
 
 // AwayTeamSubChanges ...
-func (e Event) AwayTeamSubChanges(ne Event) []LineUp {
+func (e Event) AwayTeamSubChanges(ne Event) []Substitution {
 	if len(e.Substitutions.Away) < len(ne.Substitutions.Away) {
 		return ne.Substitutions.Away[len(e.Substitutions.Away):]
 	}
@@ -86,7 +94,7 @@ func (e Event) GetNotificationMessages(ne Event) []Message {
 	if e.IsLive(ne) == true {
 		msgs = append(msgs, Message{
 			Topics: topics,
-			Title: fmt.Sprintf("Trận đấu giữa %s và %s đã bắt đầu",
+			Title: fmt.Sprintf("Trận đấu (%s-%s) đã bắt đầu",
 				e.MatchHomeTeamName, e.MatchAwayTeamName),
 		})
 	}
@@ -94,7 +102,7 @@ func (e Event) GetNotificationMessages(ne Event) []Message {
 	if e.IsEnd(ne) == true {
 		msgs = append(msgs, Message{
 			Topics: topics,
-			Title: fmt.Sprintf("Trận đấu giữa %s và %s đã kết thúc với tỷ số (%s-%s)",
+			Title: fmt.Sprintf("Trận đấu (%s-%s) đã kết thúc với tỷ số (%s-%s)",
 				ne.MatchHomeTeamName, ne.MatchAwayTeamName, ne.MatchHomeTeamScore, ne.MatchAwayTeamScore),
 		})
 	}
@@ -117,13 +125,15 @@ func (e Event) GetNotificationMessages(ne Event) []Message {
 	homeSubChanges := e.HomeSubChanges(ne)
 	if len(homeSubChanges) > 0 {
 		for _, subChange := range homeSubChanges {
+			substitution := strings.Split(subChange.Substitution, "|")
+
 			msgs = append(msgs, Message{
 				Topics: topics,
-				Title: fmt.Sprintf("Trận đấu (%s-%s) Thay người %s bên đội %s",
+				Title: fmt.Sprintf("Trận đấu (%s-%s) %s vào sân thay cho %s",
 					ne.MatchHomeTeamName,
 					ne.MatchAwayTeamName,
-					subChange.LineUpPlayer,
-					ne.MatchHomeTeamName),
+					substitution[1],
+					substitution[0]),
 			})
 		}
 	}
@@ -131,13 +141,15 @@ func (e Event) GetNotificationMessages(ne Event) []Message {
 	awaySubChanges := e.AwayTeamSubChanges(ne)
 	if len(awaySubChanges) > 0 {
 		for _, subChange := range awaySubChanges {
+			substitution := strings.Split(subChange.Substitution, "|")
+
 			msgs = append(msgs, Message{
 				Topics: topics,
-				Title: fmt.Sprintf("Trận đấu (%s-%s) Thay người %s bên đội %s",
+				Title: fmt.Sprintf("Trận đấu (%s-%s) %s vào sân thay cho %s",
 					ne.MatchHomeTeamName,
 					ne.MatchAwayTeamName,
-					subChange.LineUpPlayer,
-					ne.MatchAwayTeamName),
+					substitution[1],
+					substitution[0]),
 			})
 		}
 	}
