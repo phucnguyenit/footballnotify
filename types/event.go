@@ -50,7 +50,7 @@ func (e Event) IsLive(ne Event) bool {
 // GoalScorerChanges ...
 func (e Event) GoalScorerChanges(ne Event) []GoalScorer {
 	if len(e.GoalScorer) < len(ne.GoalScorer) {
-		return ne.GoalScorer[len(e.GoalScorer)+1:]
+		return ne.GoalScorer[len(e.GoalScorer):]
 	}
 	return nil
 }
