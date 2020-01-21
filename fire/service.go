@@ -10,27 +10,27 @@ import (
 	"github.com/thang14/footballnotify/types"
 )
 
-// Fire ...
-type Fire struct {
+// Service ...
+type Service struct {
 	app *firebase.App
 }
 
-// New ...
-func New() *Fire {
+// NewService ...
+func NewService() *Service {
 	app, err := firebase.NewApp(context.Background(), nil)
 	if err != nil {
 		log.Fatalf("error initializing app: %v\n", err)
 	}
-	return &Fire{
+	return &Service{
 		app: app,
 	}
 }
 
 // SendMsgs ...
-func (fire Fire) SendMsgs(msgs []types.Message) {
+func (s Service) SendMsgs(msgs []types.Message) {
 	for _, msg := range msgs {
 		log.Printf("topic %v title: %s", msg.Topics, msg.Title)
-		if err := fire.SendMsg(msg); err != nil {
+		if err := s.SendMsg(msg); err != nil {
 			log.Printf("send msg err: %s", err)
 			continue
 		}
@@ -38,12 +38,12 @@ func (fire Fire) SendMsgs(msgs []types.Message) {
 }
 
 // SendMsg ...
-func (fire Fire) SendMsg(msg types.Message) error {
+func (s Service) SendMsg(msg types.Message) error {
 
 	// [START send_to_token_golang]
 	// Obtain a messaging.Client from the App.
 	ctx := context.Background()
-	client, err := fire.app.Messaging(ctx)
+	client, err := s.app.Messaging(ctx)
 	if err != nil {
 		return err
 	}

@@ -14,7 +14,7 @@ import (
 
 func main() {
 
-	fire := fire.New()
+	fireService := fire.NewService()
 	events := types.Events{}
 	for {
 		newEvents, err := getEvents()
@@ -25,7 +25,7 @@ func main() {
 
 		if len(events) == len(newEvents) {
 			msgs := events.GetNotificationMessages(newEvents)
-			fire.SendMsgs(msgs)
+			fireService.SendMsgs(msgs)
 		}
 
 		if len(newEvents) > 0 {
