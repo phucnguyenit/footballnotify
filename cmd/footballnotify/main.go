@@ -22,11 +22,15 @@ func main() {
 			log.Printf("err: %s", err)
 			continue
 		}
-		if len(events) > 0 {
+
+		if len(events) == len(newEvents) {
 			msgs := events.GetNotificationMessages(newEvents)
 			fire.SendMsgs(msgs)
 		}
-		events = newEvents
+
+		if len(newEvents) > 0 {
+			events = newEvents
+		}
 
 		// push message
 		time.Sleep(5 * time.Second)
@@ -38,7 +42,6 @@ func getEvents() (types.Events, error) {
 	startTime := time.Now().Format("2006-01-02")
 	apiKey := os.Getenv("API_KEY")
 	endpoint := fmt.Sprintf("http://apiv2.apifootball.com/?action=get_events&APIkey=%s&from=%s&to=%s", apiKey, startTime, startTime)
-	log.Printf("get events: %s", endpoint)
 	resp, err := http.Get(endpoint)
 	if err != nil {
 		return nil, err
