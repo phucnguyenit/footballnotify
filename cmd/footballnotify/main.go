@@ -13,7 +13,10 @@ import (
 )
 
 func main() {
+	watchEventChanges()
+}
 
+func watchEventChanges() {
 	fireService := fire.NewService()
 	events := types.Events{}
 	for {
@@ -35,7 +38,6 @@ func main() {
 		// push message
 		time.Sleep(5 * time.Second)
 	}
-
 }
 
 func getEvents() (types.Events, error) {
