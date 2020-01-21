@@ -23,13 +23,17 @@ func getDBPath() string {
 	return dbPath
 }
 
-func main() {
-	s := store.New(getDBPath())
+func setFootballAPIKey(s *store.Store) {
 	footballAPIKey = s.GetFootballAPIKey()
 
 	if footballAPIKey == "" {
 		footballAPIKey = os.Getenv("API_KEY")
 	}
+}
+
+func main() {
+	s := store.New(getDBPath())
+	setFootballAPIKey(s)
 
 	go watchEventChanges()
 
