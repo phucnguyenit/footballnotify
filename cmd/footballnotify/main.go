@@ -43,10 +43,10 @@ func main() {
 
 			if body.FootballAPIKey != "" {
 				if err := s.SetFootballAPIKey(body.FootballAPIKey); err != nil {
-					footballAPIKey = body.FootballAPIKey
 					fmt.Fprintf(w, "set football api key error: %s", err)
 					return
 				}
+				footballAPIKey = body.FootballAPIKey
 			}
 		}
 
